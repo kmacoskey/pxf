@@ -133,6 +133,7 @@ function setup_pxf_on_cluster() {
 			-e '/<name>pxf.service.user.name<\/name>/ {n;s|<value>.*</value>|<value>foobar</value>|g;}' \
 			${PXF_CONF_DIR}/servers/default-no-impersonation/pxf-site.xml
 		fi &&
+		echo 'export PXF_LOADER_PATH=file:/tmp/publicstage/pxf' >> ${PXF_CONF_DIR}/conf/pxf-env.sh && \
 		${PXF_HOME}/bin/pxf cluster sync
 	"
 }
