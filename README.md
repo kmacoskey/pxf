@@ -97,7 +97,9 @@ To build PXF, you must have:
 
 5. cURL (7.29 or later):
 
-    To install cURL devel package on CentOS 7, `sudo yum install libcurl-devel`. Note that CentOS 6 provides an older, unsupported version of cURL.
+    To install cURL devel package on CentOS 7, `sudo yum install libcurl-devel`.
+
+    Note that CentOS 6 provides an older, unsupported version of cURL (7.19). You should install a newer version from source if you are on CentOS 6.
 
 ## How to Build PXF
 PXF uses Makefiles to build its components. PXF server component uses Gradle that is wrapped into the Makefile for convenience.
