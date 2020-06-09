@@ -63,16 +63,16 @@ To build PXF, you must have:
 
 1. GCC compiler, `make` system, `unzip` package, `maven` for running integration tests
 2. Installed Greenplum DB
-    
+
     Either download and install Greenplum RPM or build Greenplum from the source by following instructions in the [GPDB README](https://github.com/greenplum-db/gpdb).
-    
+
     Assuming you have installed Greenplum into `/usr/local/greenplum-db` directory, run its environment script:
     ```
     source /usr/local/greenplum-db/greenplum_path.sh
     ```
 
 3. JDK 1.8 to compile (PXF runs on Java 8 and Java 11)
-    
+
     Export your `JAVA_HOME`:
     ```
     export JAVA_HOME=<PATH_TO_YOUR_JAVA_HOME>
@@ -102,20 +102,21 @@ cd ~/workspace/pxf
 
 # Compile & Test PXF
 make
-  
+
 # Only run unit tests
 make test
 ```
 
 ## How to Install PXF
 
-To install PXF, specify the `PXF_HOME` location, for example `/usr/local/gpdb/pxf`:
+To install PXF, first make sure that the user has sufficient permissions in the `$GPHOME` directory to perform the installation. It's recommended to change ownership to match the installing user. For example, when installing PXF as user `gpadmin` under `/usr/local/greenplum-db`:
 
 ```bash
-cd ~/workspace/pxf
-
-PXF_HOME=/usr/local/gpdb/pxf make install
+export GPHOME=/usr/local/greenplum-db
+chown -R gpadmin:gpadmin "${GPHOME}"
+make -C ~/workspace/pxf install
 ```
+
 
 ## How to demonstrate Hadoop Integration
 In order to demonstrate end to end functionality you will need Hadoop installed. We have all the related hadoop components (hdfs, hive, hbase, zookeeper, etc) mapped into simple artifact named singlecluster.
@@ -126,7 +127,6 @@ mv singlecluster-HDP.tar.gz ~/workspace/
 cd ~/workspace
 tar xzf singlecluster-HDP.tar.gz
 ```
-
 
 # Development With Docker
 NOTE: Since the docker container will house all Single cluster Hadoop, Greenplum and PXF, we recommend that you have at least 4 cpus and 6GB memory allocated to Docker. These settings are available under docker preferences.
@@ -226,7 +226,7 @@ pushd ~/workspace/singlecluster/bin
 ./start-yarn.sh
 ./start-hive.sh
 
-# Start HBase 
+# Start HBase
 ./start-zookeeper.sh
 ./start-hbase.sh
 popd
@@ -281,7 +281,7 @@ make TEST=HdfsSmokeTest
 # Run all tests. This will be very time consuming.
 make GROUP=gpdb
 
-# If you wish to run test(s) against a different storage protocol set the following variable (for eg: s3) 
+# If you wish to run test(s) against a different storage protocol set the following variable (for eg: s3)
 export PROTOCOL=s3
 popd
 ```
