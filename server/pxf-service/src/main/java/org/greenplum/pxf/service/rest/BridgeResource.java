@@ -34,6 +34,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /*
  * This class handles the subpath /<version>/Bridge/ of this
  * REST component
@@ -63,7 +66,7 @@ public class BridgeResource extends BaseResource {
      */
     @GetMapping(value = "/Bridge", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<StreamingResponseBody> read(
-            @RequestHeader MultiValueMap<String, String> headers) {
+            @RequestHeader MultiValueMap<String, String> headers) throws IOException {
         try {
             return readInternal(headers);
         } catch (ClientAbortException e) {
@@ -80,19 +83,23 @@ public class BridgeResource extends BaseResource {
         }, HttpStatus.OK);
     }
 
-    private ResponseEntity<StreamingResponseBody> readInternal(MultiValueMap<String, String> headers) throws ClientAbortException {
+    private ResponseEntity<StreamingResponseBody> readInternal(MultiValueMap<String, String> headers) throws IOException {
 
         RequestContext context = parseRequest(headers);
-        Bridge bridge = bridgeFactory.getBridge(context);
-
         // THREAD-SAFE parameter has precedence
-        boolean isThreadSafe = context.isThreadSafe() && bridge.isThreadSafe();
-        LOG.debug("Request for {} will be handled {} synchronization", context.getDataSource(), (isThreadSafe ? "without" : "with"));
+        AtomicBoolean isThreadSafe = new AtomicBoolean(context.isThreadSafe());
+        Bridge bridge = securityService.doAs(context, () -> {
+            Bridge br = bridgeFactory.getBridge(context);
+            isThreadSafe.set(isThreadSafe.get() && br.isThreadSafe());
+            return br;
+        });
+
+        LOG.debug("Request for {} will be handled {} synchronization", context.getDataSource(), (isThreadSafe.get() ? "without" : "with"));
 
         // Create a streaming class which will iterate over the records and put
         // them on the output stream
         StreamingResponseBody response =
-                new BridgeResponse(securityService, bridge, context, isThreadSafe);
+                new BridgeResponse(securityService, bridge, context, isThreadSafe.get());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
