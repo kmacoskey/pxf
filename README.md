@@ -95,6 +95,10 @@ To build PXF, you must have:
     go get github.com/onsi/ginkgo/ginkgo
     ```
 
+5. cURL (7.29 or later):
+
+    To install cURL devel package on CentOS 7, `sudo yum install libcurl-devel`. Note that CentOS 6 provides an older, unsupported version of cURL.
+
 ## How to Build PXF
 PXF uses Makefiles to build its components. PXF server component uses Gradle that is wrapped into the Makefile for convenience.
 ```bash
@@ -116,7 +120,6 @@ export GPHOME=/usr/local/greenplum-db
 chown -R gpadmin:gpadmin "${GPHOME}"
 make -C ~/workspace/pxf install
 ```
-
 
 ## How to demonstrate Hadoop Integration
 In order to demonstrate end to end functionality you will need Hadoop installed. We have all the related hadoop components (hdfs, hive, hbase, zookeeper, etc) mapped into simple artifact named singlecluster.
